@@ -1,52 +1,67 @@
-import * as Three from "three";
-import { useFrame, extend, useThree } from "@react-three/fiber";
-import { Scene } from "three";
-import { useRef } from "react";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
-function NativeThree() {
-  const mesh = new THREE.Mesh();
-  mesh.geometry = new THREE.BoxGeometry(3, 3, 3);
-  mesh.material = new THREE.MeshBasicMaterial({ color: "red" });
-
-  const scene = new Scene();
-  scene.add(mesh);
-}
-
-extend({
+import {
+  MeshReflectorMaterial,
+  Float,
+  Text,
+  Html,
+  PivotControls,
+  TransformControls,
   OrbitControls,
-});
+} from "@react-three/drei";
+import { useRef } from "react";
 
 function App() {
-  const { camera, gl } = useThree();
-  const groupRef = useRef();
-
-  useFrame((state, delta) => {
-    groupRef.current.rotation.y += delta;
-
-    const angle = state.clock.elapsedTime;
-    state.camera.position.x = Math.sin(angle) * 8;
-    state.camera.position.z = Math.cos(angle) * 8;
-    state.camera.lookAt(0, 0, 0);
-  });
+  const cubeRef = useRef();
+  const ballRef = useRef();
 
   return (
     <>
-      <orbitControls args={[camera, gl.domElement]} />
-
+      <OrbitControls enableDamping={true} makeDefault />
       <directionalLight position={[1, 2, 3]} intensity={1.5} />
       <ambientLight intensity={0.5} />
 
-      <group ref={groupRef}>
-        <mesh position={[0, 1, 0]} rotation-x={0.5}>
-          <boxGeometry />
-          <meshBasicMaterial color="red" />
-        </mesh>
-        <mesh>
-          <sphereGeometry />
-          <meshBasicMaterial color="orange" />
-        </mesh>
-      </group>
+      <mesh ref={cubeRef}>
+        <boxGeometry />
+        <meshStandardMaterial color="red" />
+      </mesh>
+
+      <mesh ref={ballRef} position-x={2} scale={1.5}>
+        <sphereGeometry />
+        <meshStandardMaterial color="orange" />
+        <Html
+          position={[1, 1, 0]}
+          wrapperClass="label"
+          center
+          distanceFactor={8}
+          occlude={[ballRef, cubeRef]}
+        >
+          That's a ball
+        </Html>
+      </mesh>
+      <TransformControls object={ballRef} />
+
+      <mesh position-y={-1} rotation-x={-Math.PI * 0.5} scale={10}>
+        <planeGeometry />
+        <MeshReflectorMaterial
+          resolution={512}
+          blur={[1000, 1000]}
+          mixBlur={1}
+          mirror={0.5}
+          color="greenyellow"
+        />
+      </mesh>
+
+      <Float speed={5} floatIntensity={2}>
+        <Text
+          fontSize={3}
+          color="salmon"
+          position-y={2}
+          maxWidht={2}
+          textAlign="center"
+        >
+          I Love R3F
+          <meshNormalMaterial />
+        </Text>
+      </Float>
     </>
   );
 }
