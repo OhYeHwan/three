@@ -6,7 +6,7 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Canvas>
+    <Canvas camera={{ fov: 45, near: 0.1, far: 200 }} position={[3, 2, 6]}>
       <App />
     </Canvas>
   </React.StrictMode>
